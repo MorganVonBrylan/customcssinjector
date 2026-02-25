@@ -67,4 +67,7 @@ function sortByLocation([la], [lb]) {
 	return la > lb ? 1 : -1;
 }
 
-Prism.highlightAllUnder(main);
+if($("main details"))
+	Prism.highlightAllUnder(main);
+else
+	$.create("p", { contents: { tag:"em", contents: "Your rulesets will be here when you make some" }, inside: main });
