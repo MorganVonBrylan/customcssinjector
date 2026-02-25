@@ -1,28 +1,25 @@
 "use strict";
 
-function update() {
-	browser.storage.local.get().then(onGot, onError);
+function onError(error) {
+	console.warn("[Crayon] An error occurred:", error);
+}
+
+function update()
+{
+	browser.storage.local.get().then(items => {
+		if(items.customCSSObj !== null)
+			apply(items.customCSSObj, items.whitelist, items.blacklist);
+	}, onError);
 }
 
 update();
 browser.storage.local.onChanged.addListener(update);
 
-// Get CSS and whitelist/blacklist from storage object and call apply()
-function onGot(items) {
-	if (items.customCSSObj !== null) {
-		apply(items.customCSSObj, items.whitelist, items.blacklist);
-	}
-}
-
-// Error checking when obtaining CSS from storage
-function onError(error) {
-	console.info("An error occurred: " + error);
-}
-
 // Takes in a String parameter of the CSS code and applies it to the DOM
 // or updates the DOM if the style element already exists.
 // Conditional statements for whitelist and blacklists if user applied.
-function apply(customCSSObj, whitelist, blacklist) {
+function apply(customCSSObj, whitelist, blacklist)
+{
 	console.log("[Crayon custom CSS Injector] Applied custom CSS.");
 
 	const hostname = window.location.hostname;
@@ -40,7 +37,8 @@ function apply(customCSSObj, whitelist, blacklist) {
 	}
 }
 
-function setCSS(id, css) {
+function setCSS(id, css)
+{
 	id = `custom-css-injector-${id}`;
 	const styleElm = document.getElementById(id);
 	if(styleElm)
@@ -61,5 +59,5 @@ function getUrl() {
 
 // Handles message from Popup script and returns the URL and DOMAIN name of the active tab.
 browser.runtime.onMessage.addListener(request => {
-  return Promise.resolve({domain: window.location.hostname, url: getUrl()});
+	return Promise.resolve({domain: window.location.hostname, url: getUrl()});
 });

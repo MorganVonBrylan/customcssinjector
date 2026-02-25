@@ -1,84 +1,72 @@
+(async function() {
 "use strict";
-document.getElementById("txtAreaCSS").value = "";
+const $ = Bliss, $$ = Bliss.$;
 
-// Starting point at which we get the URL and DOMAIN of the active tab.
-obtainActiveTabData();
-// Active tab variables
-let activeTabDomain;
-let activeTabUrl;
+$("#txtAreaCSS").value = "";
+
+function onError(error) {
+	console.info("[Crayon] An error occurred:", error);
+}
+
+const rglobal = $("#rglobal");
+const rurl = $("#rurl");
+const rdomain = $("#rdomain");
+
+function switchTab() {
+	if(this.checked)
+		$("#txtAreaCSS").value = tempCSSObj[this.value] || "";
+}
+for(const radioBtn of $$("input[type=radio]"))
+	radioBtn.addEventListener("change", switchTab);
+
 // JSON Object that contains all CSS
 let tempCSSObj;
+const {
+	domain: activeTabDomain,
+	url: activeTabUrl,
+} = await browser.tabs.query({ currentWindow: true, active: true })
+	.then(([{id}]) => browser.tabs.sendMessage(id, { message: "getwebsitedata" }))
+	.catch(onError);
 
-// Get stored CSS object from local storage.
-function getCSSObject() {
-	browser.storage.local.get().then(onGot, onError);
-}
+rglobal.value = "css";
+rurl.value = activeTabUrl;
+rdomain.value = activeTabDomain;
 
-// When stored CSS is obtained, fill text fields appropriately.
-function onGot(items) {
-	document.getElementById("txtAreaCSS").value = filterCustomCSSObj(items.customCSSObj);
-	document.getElementById("whitelistText").value = items.whitelist?.hostnames || "";
-	document.getElementById("blacklistText").value = items.blacklist?.hostnames || "";
-}
-
-const rglobal = document.getElementById("rglobal");
-const rurl = document.getElementById("rurl");
-const rdomain = document.getElementById("rdomain");
-
-rglobal.addEventListener("change", function(event) {
-	if(this.checked)
-		document.getElementById("txtAreaCSS").value = tempCSSObj.css || "";
-});
-rurl.addEventListener("change", function(event) {
-	if(this.checked)
-		document.getElementById("txtAreaCSS").value = tempCSSObj[activeTabUrl] || "";
-});
-rdomain.addEventListener("change", function(event) {
-	if(this.checked)
-		document.getElementById("txtAreaCSS").value = tempCSSObj[activeTabDomain] || "";
-});
+browser.storage.local.get().then(items => {
+	$("#txtAreaCSS").value = filterCustomCSSObj(items.customCSSObj);
+	$("#whitelistText").value = items.whitelist?.hostnames || "";
+	$("#blacklistText").value = items.blacklist?.hostnames || "";
+}, onError);
 
 // Checks the current active tab domain/url against the CSS object and applies appropriate radio button
-function filterCustomCSSObj(customCSSObj) {
-	if (!customCSSObj) {customCSSObj = {};}
-	tempCSSObj = customCSSObj; // Set global css in temp object to retain global style-sheet.
-	if (activeTabUrl in customCSSObj) {
+function filterCustomCSSObj(customCSSObj)
+{
+	tempCSSObj = customCSSObj || {}; // Set global css in temp object to retain global style-sheet.
+	if(activeTabUrl in tempCSSObj)
+	{
 		rurl.checked = true;
-		return customCSSObj[activeTabUrl];
+		return tempCSSObj[activeTabUrl];
 	}
-	if (activeTabDomain in customCSSObj) {
+	if(activeTabDomain in tempCSSObj)
+	{
 		rdomain.checked = true;
-		return customCSSObj[activeTabDomain];
+		return tempCSSObj[activeTabDomain];
 	}
-	if (customCSSObj.css == null) {
-		return "";
-	}
-	else {
-		return customCSSObj.css;	
-	}
-}
-
-// Error handling
-function onError(error) {
-	console.info("An error occurred: " + error);
+	return tempCSSObj.css || "";	
 }
 
 // Upon clicking 'Save', save the custom CSS to browser storage
 // This will call update() in customcss.js and apply the CSS to the DOM
-document.getElementById("btnSubmit").addEventListener("click", function() {
-	const customCSS = document.getElementById("txtAreaCSS").value;
-	const whitelistHostnames = document.getElementById("whitelistText").value;
-	const blacklistHostnames = document.getElementById("blacklistText").value;
-	// Check radio buttons and apply appropriate LocalStorage configuration
-	if (rglobal.checked) {
+$("#btnSubmit").addEventListener("click", () => {
+	const customCSS = $("#txtAreaCSS").value;
+	const whitelistHostnames = $("#whitelistText").value;
+	const blacklistHostnames = $("#blacklistText").value;
+	if(rglobal.checked)
 		tempCSSObj.css = customCSS;
-	}
-	else if (rurl.checked) {
+	else if(rurl.checked)
 		tempCSSObj[activeTabUrl] = customCSS;
-	}
-	else {
+	else
 		tempCSSObj[activeTabDomain] = customCSS;
-	}
 	
 	browser.storage.local.set({
 		customCSSObj: cleanup(tempCSSObj),
@@ -87,42 +75,15 @@ document.getElementById("btnSubmit").addEventListener("click", function() {
 	});
 });
 
-function onError(error) {
-  console.error(error);
-}
-
-// Send the message to the content_script and wait for response which will contain the URL and DOMAIN. 
-// Once URL/DOMAIN variables are set, then get the stored CSS and apply it to the textbox.
-function sendMessageToTabs(tabs) {
-    browser.tabs.sendMessage(
-      tabs[0].id,
-      {message: "getwebsitedata" }
-    ).then(response => {
-      activeTabDomain = response.domain;
-	  activeTabUrl = response.url;
-	  getCSSObject(); 
-    }).catch(onError);
-}
-
-// Set up a message to send to the content_script to trigger it to respond with the URL and DOMAIN 
-function obtainActiveTabData() {
-	browser.tabs.query({
-		currentWindow: true,
-		active: true
-	}).then(sendMessageToTabs).catch(onError);	
-}
-
 // Checks for and removes empty string values in customCSSObj
-function cleanup(customCSSObj) {
-	for (const key in customCSSObj) {
-		if (customCSSObj[key] == "") {
+function cleanup(customCSSObj)
+{
+	for(const key in customCSSObj)
+		if(!customCSSObj[key])
 			delete customCSSObj[key];
-		}
-	}
 	return customCSSObj;
 }
 
+$("#btnOverview").addEventListener("click", () => window.open("/overview/index.html"));
 
-document.getElementById("btnOverview").addEventListener("click", () => {
-	window.open("/overview/index.html");
-})
+})(); // end IIFE

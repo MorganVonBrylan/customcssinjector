@@ -11,7 +11,8 @@ const {
 $("#whitelist").innerText = whitelist?.hostnames || "none";
 $("#blacklist").innerText = blacklist?.hostnames || "none";
 
-function createSection(title, url, contents, parent = main) {
+function createSection(title, url, contents, parent = main)
+{
 	return $.create("details", {
 		contents: [
 			{ tag: "summary", contents: [title] },
