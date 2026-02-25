@@ -2,7 +2,9 @@
 "use strict";
 const $ = Bliss, $$ = Bliss.$;
 
+const unsavedChanges = () => !$("#unsaved-changes").hidden;
 $("#txtAreaCSS").value = "";
+$("#txtAreaCSS").addEventListener("input", () => $("#unsaved-changes").hidden = false);
 
 function onError(error) {
 	console.info("[Crayon] An error occurred:", error);
@@ -11,10 +13,18 @@ function onError(error) {
 const rglobal = $("#rglobal");
 const rurl = $("#rurl");
 const rdomain = $("#rdomain");
+let currentTab = rglobal;
+function selectTab(radioBtn) {
+	currentTab = radioBtn;
+	currentTab.checked = true;
+}
 
 function switchTab() {
-	if(this.checked)
-		$("#txtAreaCSS").value = tempCSSObj[this.value] || "";
+	if(unsavedChanges() && !confirm("You have unsaved changes.\nThey will be lost if you switch tabs before saving."))
+		return currentTab.checked = true;
+	currentTab = this;
+	$("#txtAreaCSS").value = tempCSSObj[this.value] || "";
+	$("#unsaved-changes").hidden = true;
 }
 for(const radioBtn of $$("input[type=radio]"))
 	radioBtn.addEventListener("change", switchTab);
@@ -44,12 +54,12 @@ function filterCustomCSSObj(customCSSObj)
 	tempCSSObj = customCSSObj || {}; // Set global css in temp object to retain global style-sheet.
 	if(activeTabUrl in tempCSSObj)
 	{
-		rurl.checked = true;
+		selectTab(rurl);
 		return tempCSSObj[activeTabUrl];
 	}
 	if(activeTabDomain in tempCSSObj)
 	{
-		rdomain.checked = true;
+		selectTab(rdomain);
 		return tempCSSObj[activeTabDomain];
 	}
 	return tempCSSObj.css || "";	
@@ -57,7 +67,7 @@ function filterCustomCSSObj(customCSSObj)
 
 // Upon clicking 'Save', save the custom CSS to browser storage
 // This will call update() in customcss.js and apply the CSS to the DOM
-$("#btnSubmit").addEventListener("click", () => {
+$("#btnSubmit").addEventListener("click", async () => {
 	const customCSS = $("#txtAreaCSS").value;
 	const whitelistHostnames = $("#whitelistText").value;
 	const blacklistHostnames = $("#blacklistText").value;
@@ -68,11 +78,12 @@ $("#btnSubmit").addEventListener("click", () => {
 	else
 		tempCSSObj[activeTabDomain] = customCSS;
 	
-	browser.storage.local.set({
+	await browser.storage.local.set({
 		customCSSObj: cleanup(tempCSSObj),
 		whitelist: { hostnames: whitelistHostnames },
 		blacklist: { hostnames: blacklistHostnames },
 	});
+	$("#unsaved-changes").hidden = true;
 });
 
 // Checks for and removes empty string values in customCSSObj

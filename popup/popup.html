@@ -19,11 +19,14 @@
 		<img id="popupIcon" src="../icons/crayon_48.png"/>
 		<br /><small>Custom CSS injector</small>
 	</header>
-	<form>
-		<label><input id="rglobal" type="radio" name="scope" value="global" checked> Global rules</label>
-		<label><input id="rdomain" type="radio" name="scope" value="domain"> Domain rules</label>
-		<label><input id="rurl" type="radio" name="scope" value="url"> URL rules</label>
-	</form>
+	<nav>
+		<form>
+			<label><input id="rglobal" type="radio" name="scope" value="global" checked> Global rules</label>
+			<label><input id="rdomain" type="radio" name="scope" value="domain"> Domain rules</label>
+			<label><input id="rurl" type="radio" name="scope" value="url"> URL rules</label>
+		</form>
+		<em id="unsaved-changes" hidden>unsaved changes</em>
+	</nav>
 	<main>
 		<textarea id="txtAreaCSS" class="prism-live language-css" placeholder="Start typing here"></textarea>
 		
