@@ -19,7 +19,7 @@ const fileAsker = $.create("input", {
 	accept: "application/json",
 });
 btnImport.addEventListener("click", () => {
-	if(window.confirm("⚠️ Importing a file will overwrite all your current CSS."))
+	if(window.confirm("⚠️ Importing a file will overwrite all your current CSS, whitelist and blacklist."))
 		fileAsker.click();
 });
 fileAsker.addEventListener("change", function() {
