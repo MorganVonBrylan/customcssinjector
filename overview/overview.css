@@ -9,6 +9,9 @@ header {
 h1 {
 	display: inline;
 }
+h1 img {
+	height: 1.3em;
+}
 h2 {
 	margin-top: 0;
 }
