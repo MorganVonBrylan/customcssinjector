@@ -23,28 +23,34 @@ function onError(error) {
 // or updates the DOM if the style element already exists.
 // Conditional statements for whitelist and blacklists if user applied.
 function apply(customCSSObj, whitelist, blacklist) {
-	console.log("[CustomCSS Injector] Applied custom CSS.");
-	const css = filterCustomCSSObj(customCSSObj);
+	console.log("[Crayon custom CSS Injector] Applied custom CSS.");
+
 	const hostname = window.location.hostname;
-	const cssLink = document.getElementById("custom-css-injector");
-	if (!whitelist.hostnames || whitelist.hostnames.includes(hostname)) {
-		if (!blacklist.hostnames.includes(hostname)) {
-			if (cssLink === null) {
-				const cssLink = document.createElement("style");
-				cssLink.setAttribute("type", "text/css");
-				cssLink.setAttribute("id", "custom-css-injector");
-				cssLink.textContent = css;
-				document.documentElement.appendChild(cssLink);
-				return;
-			}
-			else {
-				cssLink.textContent = css;
-				return;
-			}
-		}
+	if (blacklist?.hostnames.includes(hostname)
+		|| (whitelist?.hostnames && !whitelist.hostnames.includes(hostname)
+	)) {
+		for(const elm of document.querySelectorAll("[id^=custom-css-injector]"))
+			elm.remove();
 	}
-	if (cssLink != null) {
-		cssLink.parentElement.removeChild(cssLink);
+	else
+	{
+		setCSS("global", customCSSObj.css);
+		setCSS("domain", customCSSObj[hostname]);
+		setCSS("url", customCSSObj[getUrl()]);
+	}
+}
+
+function setCSS(id, css) {
+	id = `custom-css-injector-${id}`;
+	const styleElm = document.getElementById(id);
+	if(styleElm)
+		styleElm.textContent = css;
+	else
+	{
+		const styleElm = document.createElement("style");
+		styleElm.id = id;
+		styleElm.textContent = css;
+		document.documentElement.appendChild(styleElm);
 	}
 }
 
@@ -52,20 +58,6 @@ function getUrl() {
 	return window.location.hostname + window.location.pathname;
 }
 
-// Checks for site-specific or domain-specific applied CSS and returns it to apply()
-function filterCustomCSSObj(customCSSObj) {
-	if (customCSSObj == null) {
-		return "";
-	}
-	const url = getUrl();
-	const domain = window.location.hostname;
-	const css = [
-		customCSSObj.css, // global rules
-		customCSSObj[domain],
-		customCSSObj[url],
-	];
-	return css.filter(Boolean).join("\n");
-}
 
 // Handles message from Popup script and returns the URL and DOMAIN name of the active tab.
 browser.runtime.onMessage.addListener(request => {
