@@ -2,6 +2,8 @@
 "use strict";
 const $ = Bliss, $$ = Bliss.$;
 
+$("#btnOverview").addEventListener("click", () => window.open("/overview/index.html"));
+
 const unsavedChanges = $("#unsaved-changes");
 const txtAreaCSS = $("#txtAreaCSS");
 txtAreaCSS.value = "";
@@ -45,6 +47,7 @@ const {
 } = await browser.tabs.query({ currentWindow: true, active: true })
 	.then(([{id}]) => browser.tabs.sendMessage(id, { message: "getwebsitedata" }))
 	.catch(onError);
+	// On special tabs like about:addons, crash here. Can't select special tabs.
 
 rglobal.value = "css";
 rurl.value = activeTabUrl;
@@ -106,7 +109,5 @@ function cleanup(customCSSObj)
 	
 	return customCSSObj;
 }
-
-$("#btnOverview").addEventListener("click", () => window.open("/overview/index.html"));
 
 })(); // end IIFE
