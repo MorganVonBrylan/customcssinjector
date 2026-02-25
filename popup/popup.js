@@ -2,9 +2,12 @@
 "use strict";
 const $ = Bliss, $$ = Bliss.$;
 
-const unsavedChanges = () => !$("#unsaved-changes").hidden;
-$("#txtAreaCSS").value = "";
-$("#txtAreaCSS").addEventListener("input", () => $("#unsaved-changes").hidden = false);
+const unsavedChanges = $("#unsaved-changes");
+const txtAreaCSS = $("#txtAreaCSS");
+txtAreaCSS.value = "";
+txtAreaCSS.addEventListener("input", () => unsavedChanges.hidden = false);
+const whitelistText = $("#whitelistText");
+const blacklistText = $("#blacklistText");
 
 function onError(error) {
 	console.info("[Crayon] An error occurred:", error);
@@ -19,13 +22,18 @@ function selectTab(radioBtn) {
 	currentTab.checked = true;
 }
 
-function switchTab() {
-	if(unsavedChanges() && !confirm("You have unsaved changes.\nThey will be lost if you switch tabs before saving."))
+function switchTab()
+{
+	if(!unsavedChanges.hidden &&
+	   !confirm("You have unsaved changes.\nThey will be lost if you switch tabs before saving.")
+	)
 		return currentTab.checked = true;
+
 	currentTab = this;
-	$("#txtAreaCSS").value = tempCSSObj[this.value] || "";
-	$("#unsaved-changes").hidden = true;
+	txtAreaCSS.value = tempCSSObj[this.value] || "";
+	unsavedChanges.hidden = true;
 }
+
 for(const radioBtn of $$("input[type=radio]"))
 	radioBtn.addEventListener("change", switchTab);
 
@@ -43,9 +51,9 @@ rurl.value = activeTabUrl;
 rdomain.value = activeTabDomain;
 
 browser.storage.local.get().then(items => {
-	$("#txtAreaCSS").value = filterCustomCSSObj(items.customCSSObj);
-	$("#whitelistText").value = items.whitelist?.hostnames || "";
-	$("#blacklistText").value = items.blacklist?.hostnames || "";
+	txtAreaCSS.value = filterCustomCSSObj(items.customCSSObj);
+	whitelistText.value = items.whitelist?.hostnames || "";
+	blacklistText.value = items.blacklist?.hostnames || "";
 }, onError);
 
 // Checks the current active tab domain/url against the CSS object and applies appropriate radio button
@@ -68,9 +76,9 @@ function filterCustomCSSObj(customCSSObj)
 // Upon clicking 'Save', save the custom CSS to browser storage
 // This will call update() in customcss.js and apply the CSS to the DOM
 $("#btnSubmit").addEventListener("click", async () => {
-	const customCSS = $("#txtAreaCSS").value;
-	const whitelistHostnames = $("#whitelistText").value;
-	const blacklistHostnames = $("#blacklistText").value;
+	const customCSS = txtAreaCSS.value;
+	const whitelistHostnames = whitelistText.value;
+	const blacklistHostnames = blacklistText.value;
 	if(rglobal.checked)
 		tempCSSObj.css = customCSS;
 	else if(rurl.checked)
@@ -83,15 +91,19 @@ $("#btnSubmit").addEventListener("click", async () => {
 		whitelist: { hostnames: whitelistHostnames },
 		blacklist: { hostnames: blacklistHostnames },
 	});
-	$("#unsaved-changes").hidden = true;
+	unsavedChanges.hidden = true;
 });
 
 // Checks for and removes empty string values in customCSSObj
 function cleanup(customCSSObj)
 {
-	for(const key in customCSSObj)
-		if(!customCSSObj[key])
-			delete customCSSObj[key];
+	if(!customCSSObj.css)
+		delete customCSSObj.css;
+	if(!customCSSObj[activeTabDomain])
+		delete customCSSObj[activeTabDomain];
+	if(!customCSSObj[activeTabUrl])
+		delete customCSSObj[activeTabUrl];
+	
 	return customCSSObj;
 }
 
