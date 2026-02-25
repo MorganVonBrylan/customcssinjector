@@ -15,8 +15,8 @@ function createSection(title, url, contents, parent = main)
 {
 	return $.create("details", {
 		contents: [
-			{ tag: "summary", contents: [title] },
-			url ? { tag: "a", href: `https://${url}`, target: "_blank", contents: ["Open in a new tab"] } : "",
+			{ tag: "summary", contents: title },
+			url ? { tag: "a", href: `https://${url}`, target: "_blank", contents: "Open in a new tab" } : "",
 			{ tag: "div", className: "codeContainer", contents: [
 				{ tag: "pre", contents: [
 					{ tag: "code", className: "language-css", contents },
