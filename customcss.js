@@ -15,6 +15,8 @@ function onError(error) {
 
 // Defines a listener for the storage for when custom CSS changes in Options
 browser.storage.local.onChanged.addListener(update);
+// And when changing page. Useful for websites like YouTube that manually update the page and URL.
+navigation.addEventListener("navigate", update);
 
 // Get CSS and whitelist/blacklist from storage object and call apply()
 function onGot(items) {
