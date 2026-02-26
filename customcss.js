@@ -14,7 +14,7 @@ function update()
 
 update();
 browser.storage.local.onChanged.addListener(update);
-navigation.addEventListener("navigate", update);
+window.navigation?.addEventListener("navigatesuccess", update);
 
 // Takes in a String parameter of the CSS code and applies it to the DOM
 // or updates the DOM if the style element already exists.
