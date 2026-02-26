@@ -30,6 +30,22 @@
 		<p id="sowwyImLazy">Editing is not possible on this page. Please use the pop-up.</p>
 		<button id="btnImport">Import</button>
 	</div>
+	<details id="help">
+		<summary>Help</summary>
+		<h3>What's CSS? How do I learn it?</h3>
+		<p>CSS is the language web developers use to tell the browser how to style a page (think text color, spacing, background images, etc). You can learn it on <a href="https://www.w3schools.com/css/" target="_blank">W3Schools</a>. The <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank">Mozilla Developer Network</a> also has great resources, although it's mostly documentation for people who already know some CSS rather than tutorials.</p>
+		<p>Oh and you can open your browser's developer tools with F12 or Ctrl+Shit+I. They're very handy!</p>
+		<h3>Global rules, domain rules, URL rules</h3>
+		<p>Global rules apply on all websites.</p>
+		<p>Domain rules apply on the website you are currently in (for instance if you're on Youtube, it will apply on all <code>www.youtube.com</code> pages).</p>
+		<p>Finally, URL rules apply on the specific page you are on. Note that search parameters (the ones after <code>?</code>) are ignored. For instance if you edit URL rules while on <code>https://www.youtube.com/watch?v=jNQXAC9IVRw</code>, those rules will apply on every <code>www.youtube.com/watch</code> page no matter what that <code>?v=</code> is.</p>
+		<p>Rules are applied in that order. That means that with an identical <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Specificity" target="_blank">specificity</a>, URL rules will overwrite domain rules, which overwrite global rules.</p>
+		<h3>Whitelist and blacklist</h3>
+		<p>If you have a whitelist, only websites in that whitelist will get custom CSS, even if you have domain or URL rules set.</p>
+		<p>Domains in the blacklist will never get custom CSS, even if they are also in the whitelist.</p>
+		<p>Currently, Crayon considers the full domain: for example, whitelisting <code>www.google.com</code> will not include <code>mail.google.com</code>. You can however use a wildcard for the subdomain (and currently, <em>only</em> for the subdomain): <code>*.google.com</code> will match <code>mail.google.com</code>, <code>www.google.com</code>, <code>google.com</code>, etc.</p>
+		<p>Semi-advanced use: whitelist all subdomains of a website except some by whitelisting its wildcarded domain and blacklisting specific subdomains.</p>
+	</details>
 	<main id="css">
 		<div><strong>Whitelisted domains:</strong> <span id="whitelist"></span></div>
 		<div><strong>Blacklisted domains:</strong> <span id="blacklist"></span></div>

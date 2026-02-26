@@ -8,7 +8,8 @@ Why did I fork it? Here is what I did:
 - Improved the pop-up UX (you no longer have to click just on the little dot)
 - Improved granularity: you can now use global, domain and URL rules in tandem instead of them being mutually exclusive for some reason.
 - Wildcards in the whitelist and blacklist.
-- Most importantly: **an overview page**, accessible via the "see all your rules" button in the pop-up
+- Most importantly: **an overview page**, accessible via the "overview & help" button in the pop-up
+	- Get help with CSS and how the add-on works
 	- See all the rules you have saved
 	- Export/import
 
