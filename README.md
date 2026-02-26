@@ -7,6 +7,7 @@ Why did I fork it? Here is what I did:
 - Updated 3rd-party libraries (Prism and Bliss)
 - Improved the pop-up UX (you no longer have to click just on the little dot)
 - Improved granularity: you can now use global, domain and URL rules in tandem instead of them being mutually exclusive for some reason.
+- Wildcards in the whitelist and blacklist.
 - Most importantly: **an overview page**, accessible via the "see all your rules" button in the pop-up
 	- See all the rules you have saved
 	- Export/import

@@ -8,8 +8,16 @@ const {
 	customCSSObj = {},
 } = await browser.storage.local.get();
 
-$("#whitelist").innerText = whitelist?.hostnames || "none";
-$("#blacklist").innerText = blacklist?.hostnames || "none";
+
+function parseList(list) {
+	const { hostnames = [], domainNames = [] } = list || {};
+	return hostnames.length || domainNames.length
+		? [...hostnames, ...domainNames]
+			.map(h => $.create("code", {className: "domain", contents: h}))
+		: ["none"];
+}
+$("#whitelist").append(...parseList(whitelist));
+$("#blacklist").append(...parseList(blacklist));
 
 function createSection(title, url, contents, parent = main)
 {

@@ -55,9 +55,16 @@ rdomain.value = activeTabDomain;
 
 browser.storage.local.get().then(items => {
 	txtAreaCSS.value = filterCustomCSSObj(items.customCSSObj);
-	whitelistText.value = items.whitelist?.hostnames || "";
-	blacklistText.value = items.blacklist?.hostnames || "";
+	whitelistText.value = parseList(items.whitelist);
+	blacklistText.value = parseList(items.blacklist);
 }, onError);
+
+function parseList(list) {
+	if(!list) return "";
+	return Object.values(list)
+		.map(sublist => !sublist ? "" : Array.isArray(sublist) ? sublist : sublist.split(","))
+		.flat().join(",");
+}
 
 // Checks the current active tab domain/url against the CSS object and applies appropriate radio button
 function filterCustomCSSObj(customCSSObj)
@@ -80,8 +87,6 @@ function filterCustomCSSObj(customCSSObj)
 // This will call update() in customcss.js and apply the CSS to the DOM
 $("#btnSubmit").addEventListener("click", async () => {
 	const customCSS = txtAreaCSS.value;
-	const whitelistHostnames = whitelistText.value;
-	const blacklistHostnames = blacklistText.value;
 	if(rglobal.checked)
 		tempCSSObj.css = customCSS;
 	else if(rurl.checked)
@@ -91,11 +96,24 @@ $("#btnSubmit").addEventListener("click", async () => {
 	
 	await browser.storage.local.set({
 		customCSSObj: cleanup(tempCSSObj),
-		whitelist: { hostnames: whitelistHostnames },
-		blacklist: { hostnames: blacklistHostnames },
+		whitelist: stringToList(whitelistText.value),
+		blacklist: stringToList(blacklistText.value),
 	});
 	unsavedChanges.hidden = true;
 });
+
+function stringToList(string) {
+	const domains = string.split(",");
+	const obj = Object.create(null);
+	for(const domain of domains.filter(Boolean))
+	{
+		const sublist = domain[0] === "*" ? "domainNames" : "hostnames";
+		if(sublist in obj) obj[sublist].push(domain);
+		else obj[sublist] = [domain];
+	}
+	return obj;
+}
+
 
 // Checks for and removes empty string values in customCSSObj
 function cleanup(customCSSObj)

@@ -49,10 +49,22 @@ function parseImport(obj)
 	if(
 		typeof obj !== "object" || Array.isArray(obj)
 		|| (typeof obj.customCSSObj !== "object" || Array.isArray(obj.customCSSObj))
-		|| (obj.whitelist && typeof obj.whitelist.hostnames !== "string")
-		|| (obj.blacklist && typeof obj.blacklist.hostnames !== "string")
+		|| !parseList(obj.whitelist)
+		|| !parseList(obj.blacklist)
 	)
 		return false;
 
 	return obj;
+}
+function parseList(list)
+{
+	if(!list) return true;
+	return parseSubList("hostnames")
+		&& parseSubList("domainNames");
+
+	function parseSubList(name) {
+		return !list[name] ? list[name] = []
+			: typeof list[name] === "string" ? list[name] = list[name].split(",")
+			: Array.isArray(list[name]);
+	}
 }

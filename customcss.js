@@ -23,9 +23,8 @@ function apply(customCSSObj, whitelist, blacklist)
 	console.log("[Crayon custom CSS Injector] Applied custom CSS.");
 
 	const hostname = window.location.hostname;
-	if (blacklist?.hostnames.includes(hostname)
-		|| (whitelist?.hostnames && !whitelist.hostnames.includes(hostname)
-	)) {
+	if(matchList(blacklist, hostname) || !matchList(whitelist, hostname, true))
+	{
 		for(const elm of document.querySelectorAll("[id^=custom-css-injector]"))
 			elm.remove();
 	}
@@ -35,6 +34,14 @@ function apply(customCSSObj, whitelist, blacklist)
 		setCSS("domain", customCSSObj[hostname]);
 		setCSS("url", customCSSObj[getUrl()]);
 	}
+}
+
+function matchList(list, domain, trueIfEmpty = false)
+{
+	if(!list) return trueIfEmpty;
+	if(!Object.keys(list).length && trueIfEmpty) return true;
+	return list.hostnames?.includes(domain)
+		|| list.domainNames?.some(d => domain.endsWith(d.substring(2))); // *.thing.com
 }
 
 function setCSS(id, css)
