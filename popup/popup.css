@@ -30,6 +30,18 @@ label + label {
 	margin-left: 1ch;
 }
 
+
+#scopeInfo {
+	display: inline-block;
+	font-style: italic;
+	font-size: 0.8em;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	max-width: 100%;
+	padding-right: 1ch; /* otherwise the hidden overflow + italics cut the letter */
+}
+
 textarea::placeholder {
 	color: rgba(0,0,0, 0.5);
 }

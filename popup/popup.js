@@ -6,6 +6,7 @@ $("#btnOverview").addEventListener("click", () => window.open("/overview/index.h
 
 const unsavedChanges = $("#unsaved-changes");
 const txtAreaCSS = $("#txtAreaCSS");
+const scopeInfo = $("#scopeInfo");
 txtAreaCSS.value = "";
 txtAreaCSS.addEventListener("input", () => unsavedChanges.hidden = false);
 const whitelistText = $("#whitelistText");
@@ -16,12 +17,18 @@ function onError(error) {
 }
 
 const rglobal = $("#rglobal");
-const rurl = $("#rurl");
 const rdomain = $("#rdomain");
+const rurl = $("#rurl");
 let currentTab = rglobal;
 function selectTab(radioBtn) {
 	currentTab = radioBtn;
 	currentTab.checked = true;
+	updateScopeText();
+}
+function updateScopeText() {
+	scopeInfo.innerHTML = currentTab === rglobal ? "This will apply everywhere"
+		: currentTab === rdomain ? `This will apply on <code>${activeTabDomain}</code>`
+		: `This will apply on <code>${activeTabUrl}</code>`;
 }
 
 function switchTab()
@@ -34,6 +41,7 @@ function switchTab()
 	currentTab = this;
 	txtAreaCSS.value = tempCSSObj[this.value] || "";
 	unsavedChanges.hidden = true;
+	updateScopeText();
 }
 
 for(const radioBtn of $$("input[type=radio]"))
@@ -80,6 +88,7 @@ function filterCustomCSSObj(customCSSObj)
 		selectTab(rdomain);
 		return tempCSSObj[activeTabDomain];
 	}
+	updateScopeText();
 	return tempCSSObj.css || "";	
 }
 
